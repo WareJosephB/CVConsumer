@@ -20,20 +20,24 @@ public class CVService {
 		this.consumerRepo = persist;
 	}
 
-	public Iterable<CV> getAll() {
+	private Iterable<CV> getAll() {
 		return consumerRepo.findAll();
 	}
 
-	public CV add(CV account) {
+	private CV add(CV account) {
 		return consumerRepo.save(account);
 	}
 
-	public void delete(Long id) {
+	private void delete(Long id) {
 		consumerRepo.deleteById(id);
 	}
 
-	public Optional<CV> get(Long id) {
+	private Optional<CV> get(Long id) {
 		return consumerRepo.findById(id);
+	}
+	
+	private void update(Request request) {
+		get(request.getCVID()).get().setCV(request.getCv().getCV());
 	}
 
 	public void parse(Request request) {
@@ -43,6 +47,10 @@ public class CVService {
 			delete(request.getCVID());
 		} else if (request.getType() == requestType.READ) {
 			get(request.getCVID());
+		} else if (request.getType() == requestType.UPDATE) {
+			update(request);
+		} else if (request.getType() == requestType.READALL) {
+			getAll();
 		}
 		
 	}

@@ -3,7 +3,7 @@ package com.qa.CVConsumer.persistence.domain;
 public class Request {
 
 	public enum requestType {
-		CREATE, READ, UPDATE, DELETE, TAG
+		CREATE, READ, UPDATE, DELETE, READALL
 	}
 
 	private CV cv;

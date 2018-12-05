@@ -16,4 +16,9 @@ public class CVProducer {
 		jmsTemplate.convertAndSend("${outgoingQueue}", cv);
 		return "${successful.message}";
 	}
+	
+	public String produce(Iterable<CV> cvs) {
+		jmsTemplate.convertAndSend("${outgoingQueue}", cvs);
+		return "${successful.message}";
+	}
 }
