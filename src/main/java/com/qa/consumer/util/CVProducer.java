@@ -12,18 +12,18 @@ public class CVProducer {
 
 	@Autowired
 	private JmsTemplate jmsTemplate;
-	
-	@Value("${SuccessfullyQueued.message}")
-	private String successMessage;
 
 	public String produce(CV cv) {
 		jmsTemplate.convertAndSend("${outgoingQueue}", cv);
-		return successMessage;
+		return queuedMessage;
 	}
 
 	public String produce(Iterable<CV> cvs) {
 		jmsTemplate.convertAndSend("${outgoingQueue}", cvs);
-		return successMessage;
+		return queuedMessage;
 	}
+
+	@Value("${SuccessfullyQueued.message}")
+	private String queuedMessage;
 
 }

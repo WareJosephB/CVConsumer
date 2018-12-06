@@ -1,9 +1,7 @@
 package com.qa.consumer.service;
 
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.qa.consumer.persistence.domain.CV;
@@ -21,20 +19,17 @@ public class CVService {
 	@Autowired
 	private CVProducer producer;
 
-	@Value("${CVNotFound.message}")
-	private String notFoundMessage;
+	String queuedMessage = "File placed on queue succesfully";
 
-	@Value("${CVAdded.message}")
-	private String addedMessage;
+	String malformedMessage = "Queue request malformed";
 
-	@Value("${MalformedRequest.message}")
-	private String malformedRequest;
+	String addMessage = "CV added succesfully";
 
-	@Value("${CVUpdated.message}")
-	private String updatedMessage;
+	String notFoundMessage = "CV not found";
 
-	@Value("${CVDeleted.message}")
-	private String deletedMessage;
+	String deletedMessage = "CV deleted succesfully";
+
+	String updatedMessage = "CV updated succesfully";
 
 	public void setRepo(CVRepository persist) {
 		this.consumerRepo = persist;
@@ -94,16 +89,16 @@ public class CVService {
 		} else if (request.getType() == requestType.READALL) {
 			return send(getAll());
 		}
-		return malformedRequest;
+		return malformedMessage;
 
 	}
 
 	private String add(Request request) {
 		if (request.getCv() == null) {
-			return malformedRequest;
+			return malformedMessage;
 		} else {
 			add(request.getCv());
-			return addedMessage;
+			return addMessage;
 		}
 	}
 

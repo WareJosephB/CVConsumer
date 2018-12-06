@@ -3,14 +3,12 @@ package com.qa.consumer;
 import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Optional;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -31,34 +29,25 @@ public class CvConsumerApplicationTests {
 	private JmsTemplate jmsTemplate;
 
 	@InjectMocks
-	CVService service;
+	private CVService service;
 
 	@Mock
-	CVRepository repo;
+	private CVRepository repo;
 
 	@Mock
-	CVProducer producer;
-	
-	@Value("${SuccessfullyQueued.message}")
-	String queuedMessage;
-	
-	@Value("${MalformedRequest.message}")
-	String malformedMessage;
-	
-	@Value("${CVAdded.message}")
-	String addMessage;
-	
-	@Value("${CVNotFound.message}")
-	String notFoundMessage;
-	
-	@Value("${CVDeleted.message}")
-	String deletedMessage;
-	
-	@Value("${CVUpdated.message}")
-	String updatedMessage;
-	
-	@Value("${SuccessfullyQueued.message}")
-	String successMessage;
+	private CVProducer producer;
+
+	String queuedMessage = "File placed on queue succesfully";
+
+	String malformedMessage = "Queue request malformed";
+
+	String addMessage = "CV added succesfully";
+
+	String notFoundMessage = "CV not found";
+
+	String deletedMessage = "CV deleted succesfully";
+
+	String updatedMessage = "CV updated succesfully";
 
 	@Test
 	public void testSendReceive() { // Checks whether correctly pointing to MQ Server and therefore requires one
@@ -94,8 +83,8 @@ public class CvConsumerApplicationTests {
 		Mockito.when(repo.findById(1l)).thenReturn(Optional.of(cv));
 		Mockito.when(repo.findById(11l)).thenReturn(Optional.empty());
 		Mockito.when(repo.findAll()).thenReturn(allCVs);
-		Mockito.when(producer.produce(cv)).thenReturn(successMessage);
-		Mockito.when(producer.produce(allCVs)).thenReturn(successMessage);
+		Mockito.when(producer.produce(cv)).thenReturn(queuedMessage);
+		Mockito.when(producer.produce(allCVs)).thenReturn(queuedMessage);
 
 		Request findRequest = new Request();
 		findRequest.setcvIDtoActUpon(1l);
@@ -151,4 +140,5 @@ public class CvConsumerApplicationTests {
 		assertEquals(malformedMessage, service.parse(malformedRequest));
 
 	}
+
 }
