@@ -2,8 +2,12 @@ package com.qa.CVConsumer.persistence.domain;
 
 import java.io.File;
 
+import org.springframework.data.annotation.Id;
+
 public class CV {
 
+	@Id
+	private long _id;
 	private File CV;
 	private Trainee creator;
 	private String[] alertees;
