@@ -8,7 +8,7 @@ public class Request {
 
 	private CV cv;
 	private requestType type;
-	private long cv_id;
+	private long cvIDtoActUpon;
 
 	public CV getCv() {
 		return cv;
@@ -26,12 +26,12 @@ public class Request {
 		this.type = type;
 	}
 
-	public long getcv_id() {
-		return cv_id;
+	public long getcvIDtoActUpon() {
+		return cvIDtoActUpon;
 	}
 
-	public void setcv_id(long cv_id) {
-		this.cv_id = cv_id;
+	public void setcvIDtoActUpon(long cvID) {
+		this.cvIDtoActUpon = cvID;
 	}
 
 }

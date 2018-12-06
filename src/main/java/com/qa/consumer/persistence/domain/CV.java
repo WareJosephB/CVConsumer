@@ -8,15 +8,15 @@ public class CV {
 
 	@Id
 	private long _id;
-	private File cv;
+	private File cvFile;
 	private Trainee creator;
 
 	public File getCV() {
-		return cv;
+		return cvFile;
 	}
 
 	public void setCV(File cV) {
-		cv = cV;
+		cvFile = cV;
 	}
 
 	public Trainee getCreator() {

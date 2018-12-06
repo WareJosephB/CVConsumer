@@ -77,29 +77,29 @@ public class CvConsumerApplicationTests {
 		Mockito.when(producer.produce(allCVs)).thenReturn("${SuccessfullyQueued.message}");
 
 		Request findRequest = new Request();
-		findRequest.setcv_id(1l);
+		findRequest.setcvIDtoActUpon(1l);
 		findRequest.setType(requestType.READ);
 
 		Request badFindRequest = new Request();
-		badFindRequest.setcv_id(11l);
+		badFindRequest.setcvIDtoActUpon(11l);
 		badFindRequest.setType(requestType.READ);
 
 		Request deleteRequest = new Request();
-		deleteRequest.setcv_id(1l);
+		deleteRequest.setcvIDtoActUpon(1l);
 		deleteRequest.setType(requestType.DELETE);
 
 		Request badDeleteRequest = new Request();
-		badDeleteRequest.setcv_id(11l);
+		badDeleteRequest.setcvIDtoActUpon(11l);
 		badDeleteRequest.setType(requestType.DELETE);
 
 		Request updateRequest = new Request();
 		updateRequest.setCv(cv2);
-		updateRequest.setcv_id(1l);
+		updateRequest.setcvIDtoActUpon(1l);
 		updateRequest.setType(requestType.UPDATE);
 
 		Request badUpdateRequest = new Request();
 		badUpdateRequest.setCv(cv2);
-		badUpdateRequest.setcv_id(11l);
+		badUpdateRequest.setcvIDtoActUpon(11l);
 		badUpdateRequest.setType(requestType.UPDATE);
 
 		Request findAllRequest = new Request();

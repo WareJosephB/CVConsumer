@@ -56,29 +56,28 @@ public class CVService {
 		consumerRepo.deleteById(id);
 	}
 
-	private void update(Long id, CV updatedCV) {
-		CV cvToUpdate = consumerRepo.findById(id).get();
+	private void update(CV cvToUpdate, CV updatedCV) {
 		cvToUpdate.setCV(updatedCV.getCV());
 		cvToUpdate.setCreator(updatedCV.getCreator());
 	}
 
 	private String delete(Request request) {
-		Optional<CV> cvToDelete = get(request.getcv_id());
+		Optional<CV> cvToDelete = get(request.getcvIDtoActUpon());
 		if (!cvToDelete.isPresent()) {
 			return notFoundMessage;
 		} else {
-			delete(request.getcv_id());
+			delete(request.getcvIDtoActUpon());
 			return deletedMessage;
 		}
 	}
 
 	private String update(Request request) {
-		Optional<CV> cvToUpdate = get(request.getcv_id());
+		Optional<CV> cvToUpdate = get(request.getcvIDtoActUpon());
 		CV updatedCV = request.getCv();
 		if (!cvToUpdate.isPresent()) {
 			return notFoundMessage;
 		} else {
-			update(request.getcv_id(), updatedCV);
+			update(cvToUpdate.get(), updatedCV);
 			return updatedMessage;
 		}
 	}
@@ -89,7 +88,7 @@ public class CVService {
 		} else if (request.getType() == requestType.DELETE) {
 			return delete(request);
 		} else if (request.getType() == requestType.READ) {
-			return send(get(request.getcv_id()));
+			return send(get(request.getcvIDtoActUpon()));
 		} else if (request.getType() == requestType.UPDATE) {
 			return update(request);
 		} else if (request.getType() == requestType.READALL) {
