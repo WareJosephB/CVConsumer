@@ -1,4 +1,4 @@
-package com.qa.CVConsumer.persistence.domain;
+package com.qa.consumer.persistence.domain;
 
 import java.io.File;
 
@@ -8,16 +8,15 @@ public class CV {
 
 	@Id
 	private long _id;
-	private File CV;
+	private File cv;
 	private Trainee creator;
-	private String[] alertees;
 
 	public File getCV() {
-		return CV;
+		return cv;
 	}
 
 	public void setCV(File cV) {
-		CV = cV;
+		cv = cV;
 	}
 
 	public Trainee getCreator() {
@@ -28,11 +27,4 @@ public class CV {
 		this.creator = creator;
 	}
 
-	public String[] getAlertees() {
-		return alertees;
-	}
-
-	public void setAlertees(String[] alertees) {
-		this.alertees = alertees;
-	}
 }

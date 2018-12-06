@@ -16,13 +16,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.qa.CVConsumer.persistence.domain.CV;
-import com.qa.CVConsumer.persistence.domain.Request;
-import com.qa.CVConsumer.persistence.domain.Request.requestType;
-import com.qa.CVConsumer.persistence.domain.Trainee;
-import com.qa.CVConsumer.persistence.repository.CVRepository;
-import com.qa.CVConsumer.service.CVService;
-import com.qa.CVConsumer.util.CVProducer;
+import com.qa.consumer.persistence.domain.CV;
+import com.qa.consumer.persistence.domain.Request;
+import com.qa.consumer.persistence.domain.Trainee;
+import com.qa.consumer.persistence.domain.Request.requestType;
+import com.qa.consumer.persistence.repository.CVRepository;
+import com.qa.consumer.service.CVService;
+import com.qa.consumer.util.CVProducer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -36,14 +36,24 @@ public class CvConsumerApplicationTests {
 
 	@Mock
 	CVRepository repo;
-	
+
 	@Mock
 	CVProducer producer;
 
 	@Test
 	public void testSendReceive() { // Checks whether correctly pointing to MQ Server and therefore requires one
 		jmsTemplate.convertAndSend("testQueue", "Hello World!");
-		assertEquals(jmsTemplate.receiveAndConvert("testQueue"), "Hello World!");
+		assertEquals("Hello World!", jmsTemplate.receiveAndConvert("testQueue"));
+	}
+
+	@Test
+	public void cvTests() {
+		CV cv = new CV();
+		assertEquals(null, cv.getCreator());
+
+		Trainee bob = new Trainee();
+		assertEquals(bob, cv.getCreator());
+
 	}
 
 	@Test
@@ -67,29 +77,29 @@ public class CvConsumerApplicationTests {
 		Mockito.when(producer.produce(allCVs)).thenReturn("${SuccessfullyQueued.message}");
 
 		Request findRequest = new Request();
-		findRequest.setCVID(1l);
+		findRequest.setcv_id(1l);
 		findRequest.setType(requestType.READ);
 
 		Request badFindRequest = new Request();
-		badFindRequest.setCVID(11l);
+		badFindRequest.setcv_id(11l);
 		badFindRequest.setType(requestType.READ);
 
 		Request deleteRequest = new Request();
-		deleteRequest.setCVID(1l);
+		deleteRequest.setcv_id(1l);
 		deleteRequest.setType(requestType.DELETE);
 
 		Request badDeleteRequest = new Request();
-		badDeleteRequest.setCVID(11l);
+		badDeleteRequest.setcv_id(11l);
 		badDeleteRequest.setType(requestType.DELETE);
 
 		Request updateRequest = new Request();
 		updateRequest.setCv(cv2);
-		updateRequest.setCVID(1l);
+		updateRequest.setcv_id(1l);
 		updateRequest.setType(requestType.UPDATE);
 
 		Request badUpdateRequest = new Request();
 		badUpdateRequest.setCv(cv2);
-		badUpdateRequest.setCVID(11l);
+		badUpdateRequest.setcv_id(11l);
 		badUpdateRequest.setType(requestType.UPDATE);
 
 		Request findAllRequest = new Request();
@@ -104,20 +114,20 @@ public class CvConsumerApplicationTests {
 
 		Request malformedRequest = new Request();
 
-		assertEquals(service.parse(findRequest), "${SuccessfullyQueued.message}");
-		assertEquals(service.parse(badFindRequest), "${CVNotFound.message}");
+		assertEquals("${SuccessfullyQueued.message}", service.parse(findRequest));
+		assertEquals("${CVNotFound.message}", service.parse(badFindRequest));
 
-		assertEquals(service.parse(deleteRequest), "${CVDeleted.message}");
-		assertEquals(service.parse(badDeleteRequest), "${CVNotFound.message}");
+		assertEquals("${CVDeleted.message}", service.parse(deleteRequest));
+		assertEquals("${CVNotFound.message}", service.parse(badDeleteRequest));
 
-		assertEquals(service.parse(updateRequest), "${CVUpdated.message}");
-		assertEquals(service.parse(badUpdateRequest), "${CVNotFound.message}");
+		assertEquals("${CVUpdated.message}", service.parse(updateRequest));
+		assertEquals("${CVNotFound.message}", service.parse(badUpdateRequest));
 
-		assertEquals(service.parse(addRequest), "${CVAdded.message}");
-		assertEquals(service.parse(badAddRequest), "${MalformedRequest.message}");
+		assertEquals("${CVAdded.message}", service.parse(addRequest));
+		assertEquals("${MalformedRequest.message}", service.parse(badAddRequest));
 
-		assertEquals(service.parse(findAllRequest), "${SuccessfullyQueued.message}");
-		assertEquals(service.parse(malformedRequest), "${MalformedRequest.message}");
+		assertEquals("${SuccessfullyQueued.message}", service.parse(findAllRequest));
+		assertEquals("${MalformedRequest.message}", service.parse(malformedRequest));
 
 	}
 }

@@ -1,4 +1,4 @@
-package com.qa.CVConsumer.persistence.domain;
+package com.qa.consumer.persistence.domain;
 
 public class Trainee {
 

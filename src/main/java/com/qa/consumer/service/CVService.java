@@ -1,15 +1,16 @@
-package com.qa.CVConsumer.service;
+package com.qa.consumer.service;
 
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.qa.CVConsumer.persistence.domain.CV;
-import com.qa.CVConsumer.persistence.domain.Request;
-import com.qa.CVConsumer.persistence.domain.Request.requestType;
-import com.qa.CVConsumer.persistence.repository.CVRepository;
-import com.qa.CVConsumer.util.CVProducer;
+import com.qa.consumer.persistence.domain.CV;
+import com.qa.consumer.persistence.domain.Request;
+import com.qa.consumer.persistence.domain.Request.requestType;
+import com.qa.consumer.persistence.repository.CVRepository;
+import com.qa.consumer.util.CVProducer;
 
 @Service
 public class CVService {
@@ -19,6 +20,21 @@ public class CVService {
 
 	@Autowired
 	private CVProducer producer;
+
+	@Value("${CVNotFound.message}")
+	private String notFoundMessage;
+
+	@Value("${CVAdded.message}")
+	private String addedMessage;
+
+	@Value("${MalformedRequest.message}")
+	private String malformedRequest;
+
+	@Value("${CVUpdated.message}")
+	private String updatedMessage;
+
+	@Value("${CVDeleted.message}")
+	private String deletedMessage;
 
 	public void setRepo(CVRepository persist) {
 		this.consumerRepo = persist;
@@ -47,23 +63,23 @@ public class CVService {
 	}
 
 	private String delete(Request request) {
-		Optional<CV> cvToDelete = get(request.getCVID());
+		Optional<CV> cvToDelete = get(request.getcv_id());
 		if (!cvToDelete.isPresent()) {
-			return "${CVNotFound.message}";
+			return notFoundMessage;
 		} else {
-			delete(request.getCVID());
-			return "${CVDeleted.message}";
+			delete(request.getcv_id());
+			return deletedMessage;
 		}
 	}
 
 	private String update(Request request) {
-		Optional<CV> cvToUpdate = get(request.getCVID());
+		Optional<CV> cvToUpdate = get(request.getcv_id());
 		CV updatedCV = request.getCv();
 		if (!cvToUpdate.isPresent()) {
-			return "${CVNotFound.message}";
+			return notFoundMessage;
 		} else {
-			update(request.getCVID(), updatedCV);
-			return "${CVUpdated.message}";
+			update(request.getcv_id(), updatedCV);
+			return updatedMessage;
 		}
 	}
 
@@ -73,22 +89,22 @@ public class CVService {
 		} else if (request.getType() == requestType.DELETE) {
 			return delete(request);
 		} else if (request.getType() == requestType.READ) {
-			return send(get(request.getCVID()));
+			return send(get(request.getcv_id()));
 		} else if (request.getType() == requestType.UPDATE) {
 			return update(request);
 		} else if (request.getType() == requestType.READALL) {
 			return send(getAll());
 		}
-		return "${MalformedRequest.message}";
+		return malformedRequest;
 
 	}
 
 	private String add(Request request) {
 		if (request.getCv() == null) {
-			return "${MalformedRequest.message}";
+			return malformedRequest;
 		} else {
 			add(request.getCv());
-			return "${CVAdded.message}";
+			return addedMessage;
 		}
 	}
 
@@ -99,7 +115,7 @@ public class CVService {
 
 	public String send(Optional<CV> optional) {
 		if (!optional.isPresent()) {
-			return "${CVNotFound.message}";
+			return notFoundMessage;
 		} else {
 			return producer.produce(optional.get());
 

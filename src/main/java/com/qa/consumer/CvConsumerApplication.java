@@ -1,4 +1,4 @@
-package com.qa.CVConsumer;
+package com.qa.consumer;
 
 import javax.jms.ConnectionFactory;
 

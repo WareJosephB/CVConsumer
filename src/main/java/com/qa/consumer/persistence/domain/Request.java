@@ -1,4 +1,4 @@
-package com.qa.CVConsumer.persistence.domain;
+package com.qa.consumer.persistence.domain;
 
 public class Request {
 
@@ -8,7 +8,7 @@ public class Request {
 
 	private CV cv;
 	private requestType type;
-	private long CVID;
+	private long cv_id;
 
 	public CV getCv() {
 		return cv;
@@ -26,12 +26,12 @@ public class Request {
 		this.type = type;
 	}
 
-	public long getCVID() {
-		return CVID;
+	public long getcv_id() {
+		return cv_id;
 	}
 
-	public void setCVID(long cVID) {
-		CVID = cVID;
+	public void setcv_id(long cv_id) {
+		this.cv_id = cv_id;
 	}
 
 }

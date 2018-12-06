@@ -1,11 +1,11 @@
-package com.qa.CVConsumer.util;
+package com.qa.consumer.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
-import com.qa.CVConsumer.persistence.domain.Request;
-import com.qa.CVConsumer.service.CVService;
+import com.qa.consumer.persistence.domain.Request;
+import com.qa.consumer.service.CVService;
 
 @Component
 public class RequestReceiver {

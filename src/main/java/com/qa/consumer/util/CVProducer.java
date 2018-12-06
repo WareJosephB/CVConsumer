@@ -1,10 +1,10 @@
-package com.qa.CVConsumer.util;
+package com.qa.consumer.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
-import com.qa.CVConsumer.persistence.domain.CV;
+import com.qa.consumer.persistence.domain.CV;
 
 @Component
 public class CVProducer {
