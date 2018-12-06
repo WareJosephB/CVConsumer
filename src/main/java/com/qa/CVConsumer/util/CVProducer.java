@@ -14,12 +14,12 @@ public class CVProducer {
 
 	public String produce(CV cv) {
 		jmsTemplate.convertAndSend("${outgoingQueue}", cv);
-		return "${successful.message}";
+		return "${SuccessfullyQueued.message}";
 	}
 
 	public String produce(Iterable<CV> cvs) {
 		jmsTemplate.convertAndSend("${outgoingQueue}", cvs);
-		return "${successful.message}";
+		return "${SuccessfullyQueued.message}";
 	}
 
 }

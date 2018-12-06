@@ -9,12 +9,16 @@ import com.qa.CVConsumer.persistence.domain.CV;
 import com.qa.CVConsumer.persistence.domain.Request;
 import com.qa.CVConsumer.persistence.domain.Request.requestType;
 import com.qa.CVConsumer.persistence.repository.CVRepository;
+import com.qa.CVConsumer.util.CVProducer;
 
 @Service
 public class CVService {
 
 	@Autowired
 	private CVRepository consumerRepo;
+
+	@Autowired
+	private CVProducer producer;
 
 	public void setRepo(CVRepository persist) {
 		this.consumerRepo = persist;
@@ -24,35 +28,82 @@ public class CVService {
 		return consumerRepo.findAll();
 	}
 
-	private CV add(CV account) {
-		return consumerRepo.save(account);
+	private Optional<CV> get(Long id) {
+		return consumerRepo.findById(id);
+	}
+
+	private CV add(CV cv) {
+		return consumerRepo.save(cv);
 	}
 
 	private void delete(Long id) {
 		consumerRepo.deleteById(id);
 	}
 
-	private Optional<CV> get(Long id) {
-		return consumerRepo.findById(id);
-	}
-	
-	private void update(Request request) {
-		get(request.getCVID()).get().setCV(request.getCv().getCV());
+	private void update(Long id, CV updatedCV) {
+		CV cvToUpdate = consumerRepo.findById(id).get();
+		cvToUpdate.setCV(updatedCV.getCV());
+		cvToUpdate.setCreator(updatedCV.getCreator());
 	}
 
-	public void parse(Request request) {
-		if (request.getType() == requestType.CREATE) {
-			add(request.getCv());
-		} else if (request.getType() == requestType.DELETE) {
+	private String delete(Request request) {
+		Optional<CV> cvToDelete = get(request.getCVID());
+		if (!cvToDelete.isPresent()) {
+			return "${CVNotFound.message}";
+		} else {
 			delete(request.getCVID());
-		} else if (request.getType() == requestType.READ) {
-			get(request.getCVID());
-		} else if (request.getType() == requestType.UPDATE) {
-			update(request);
-		} else if (request.getType() == requestType.READALL) {
-			getAll();
+			return "${CVDeleted.message}";
 		}
-		
+	}
+
+	private String update(Request request) {
+		Optional<CV> cvToUpdate = get(request.getCVID());
+		CV updatedCV = request.getCv();
+		if (!cvToUpdate.isPresent()) {
+			return "${CVNotFound.message}";
+		} else {
+			update(request.getCVID(), updatedCV);
+			return "${CVUpdated.message}";
+		}
+	}
+
+	public String parse(Request request) {
+		if (request.getType() == requestType.CREATE) {
+			return add(request);
+		} else if (request.getType() == requestType.DELETE) {
+			return delete(request);
+		} else if (request.getType() == requestType.READ) {
+			return send(get(request.getCVID()));
+		} else if (request.getType() == requestType.UPDATE) {
+			return update(request);
+		} else if (request.getType() == requestType.READALL) {
+			return send(getAll());
+		}
+		return "${MalformedRequest.message}";
+
+	}
+
+	private String add(Request request) {
+		if (request.getCv() == null) {
+			return "${MalformedRequest.message}";
+		} else {
+			add(request.getCv());
+			return "${CVAdded.message}";
+		}
+	}
+
+	private String send(Iterable<CV> all) {
+		return producer.produce(all);
+
+	}
+
+	public String send(Optional<CV> optional) {
+		if (!optional.isPresent()) {
+			return "${CVNotFound.message}";
+		} else {
+			return producer.produce(optional.get());
+
+		}
 	}
 
 }
