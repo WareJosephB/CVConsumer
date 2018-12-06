@@ -3,6 +3,9 @@ package com.qa.consumer;
 import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -32,22 +35,42 @@ public class CvConsumerApplicationTests {
 	private CVService service;
 
 	@Mock
-	private CVRepository repo;
+	private static CVRepository repo;
+
+	private CV cv;
+	private Trainee bob;
+	private CV cv2;
+	private ArrayList<CV> allCVs;
 
 	@Mock
-	private CVProducer producer;
+	private static CVProducer producer;
 
-	String queuedMessage = "File placed on queue succesfully";
+	private String queuedMessage = "File placed on queue succesfully";
+	private String malformedMessage = "Queue request malformed";
+	private String addMessage = "CV added succesfully";
+	private String notFoundMessage = "CV not found";
+	private String deletedMessage = "CV deleted succesfully";
+	private String updatedMessage = "CV updated succesfully";
+	private Request goodRequest;
+	private Request badRequest;
 
-	String malformedMessage = "Queue request malformed";
-
-	String addMessage = "CV added succesfully";
-
-	String notFoundMessage = "CV not found";
-
-	String deletedMessage = "CV deleted succesfully";
-
-	String updatedMessage = "CV updated succesfully";
+	@Before
+	public void setUp() {
+		goodRequest = new Request();
+		goodRequest.setcvIDtoActUpon(1l);
+		badRequest = new Request();
+		badRequest.setcvIDtoActUpon(11l);
+		bob.setFirstName("Bob");
+		cv.setCreator(bob);
+		cv2.setCreator(bob);
+		allCVs.add(cv);
+		allCVs.add(cv2);
+		Mockito.when(repo.findById(1l)).thenReturn(Optional.of(cv));
+		Mockito.when(repo.findById(11l)).thenReturn(Optional.empty());
+		Mockito.when(repo.findAll()).thenReturn(allCVs);
+		Mockito.when(producer.produce(cv)).thenReturn(queuedMessage);
+		Mockito.when(producer.produce(allCVs)).thenReturn(queuedMessage);
+	}
 
 	@Test
 	public void testSendReceive() { // Checks whether correctly pointing to MQ Server and therefore requires one
@@ -67,78 +90,50 @@ public class CvConsumerApplicationTests {
 	}
 
 	@Test
-	public void testReceiveParse() { // Checks whether requests are parsed correctly
-		CV cv = new CV();
-		Trainee bob = new Trainee();
-		bob.setFirstName("Bob");
-		cv.setCreator(bob);
+	public void testFindParse() { // Checks whether requests are parsed correctl
+		goodRequest.setType(requestType.READ);
+		badRequest.setType(requestType.READ);
 
-		CV cv2 = new CV();
-		cv2.setCreator(bob);
+		assertEquals(queuedMessage, service.parse(goodRequest));
+		assertEquals(notFoundMessage, service.parse(badRequest));
 
-		ArrayList<CV> allCVs = new ArrayList<CV>();
-		allCVs.add(cv);
-		allCVs.add(cv2);
+	}
 
-		Mockito.when(repo.findById(1l)).thenReturn(Optional.of(cv));
-		Mockito.when(repo.findById(11l)).thenReturn(Optional.empty());
-		Mockito.when(repo.findAll()).thenReturn(allCVs);
-		Mockito.when(producer.produce(cv)).thenReturn(queuedMessage);
-		Mockito.when(producer.produce(allCVs)).thenReturn(queuedMessage);
+	@Test
+	public void testDeleteParse() {
+		goodRequest.setType(requestType.DELETE);
+		badRequest.setType(requestType.DELETE);
 
-		Request findRequest = new Request();
-		findRequest.setcvIDtoActUpon(1l);
-		findRequest.setType(requestType.READ);
+		assertEquals(deletedMessage, service.parse(goodRequest));
+		assertEquals(notFoundMessage, service.parse(badRequest));
+	}
 
-		Request badFindRequest = new Request();
-		badFindRequest.setcvIDtoActUpon(11l);
-		badFindRequest.setType(requestType.READ);
+	@Test
+	public void testUpdateParse() {
+		goodRequest.setType(requestType.UPDATE);
+		badRequest.setType(requestType.UPDATE);
 
-		Request deleteRequest = new Request();
-		deleteRequest.setcvIDtoActUpon(1l);
-		deleteRequest.setType(requestType.DELETE);
+		assertEquals(updatedMessage, service.parse(goodRequest));
+		assertEquals(notFoundMessage, service.parse(badRequest));
+	}
 
-		Request badDeleteRequest = new Request();
-		badDeleteRequest.setcvIDtoActUpon(11l);
-		badDeleteRequest.setType(requestType.DELETE);
+	@Test
+	public void testAddParse() {
+		goodRequest.setType(requestType.CREATE);
+		goodRequest.setCv(cv2);
+		badRequest.setType(requestType.CREATE);
 
-		Request updateRequest = new Request();
-		updateRequest.setCv(cv2);
-		updateRequest.setcvIDtoActUpon(1l);
-		updateRequest.setType(requestType.UPDATE);
+		assertEquals(addMessage, service.parse(goodRequest));
+		assertEquals(malformedMessage, service.parse(badRequest));
 
-		Request badUpdateRequest = new Request();
-		badUpdateRequest.setCv(cv2);
-		badUpdateRequest.setcvIDtoActUpon(11l);
-		badUpdateRequest.setType(requestType.UPDATE);
+	}
 
-		Request findAllRequest = new Request();
-		findAllRequest.setType(requestType.READALL);
+	@Test
+	public void testOtherParse() {
+		goodRequest.setType(requestType.READALL);
 
-		Request addRequest = new Request();
-		addRequest.setType(requestType.CREATE);
-		addRequest.setCv(cv2);
-
-		Request badAddRequest = new Request();
-		addRequest.setType(requestType.CREATE);
-
-		Request malformedRequest = new Request();
-
-		assertEquals(queuedMessage, service.parse(findRequest));
-		assertEquals(notFoundMessage, service.parse(badFindRequest));
-
-		assertEquals(deletedMessage, service.parse(deleteRequest));
-		assertEquals(notFoundMessage, service.parse(badDeleteRequest));
-
-		assertEquals(updatedMessage, service.parse(updateRequest));
-		assertEquals(notFoundMessage, service.parse(badUpdateRequest));
-
-		assertEquals(addMessage, service.parse(addRequest));
-		assertEquals(malformedMessage, service.parse(badAddRequest));
-
-		assertEquals(queuedMessage, service.parse(findAllRequest));
-		assertEquals(malformedMessage, service.parse(malformedRequest));
-
+		assertEquals(queuedMessage, service.parse(goodRequest));
+		assertEquals(malformedMessage, service.parse(badRequest));
 	}
 
 }
