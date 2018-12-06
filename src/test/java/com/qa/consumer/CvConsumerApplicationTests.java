@@ -1,8 +1,6 @@
-package com.qa.CVConsumer;
+package com.qa.consumer;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -12,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -39,6 +38,27 @@ public class CvConsumerApplicationTests {
 
 	@Mock
 	CVProducer producer;
+	
+	@Value("${SuccessfullyQueued.message}")
+	String queuedMessage;
+	
+	@Value("${MalformedRequest.message}")
+	String malformedMessage;
+	
+	@Value("${CVAdded.message}")
+	String addMessage;
+	
+	@Value("${CVNotFound.message}")
+	String notFoundMessage;
+	
+	@Value("${CVDeleted.message}")
+	String deletedMessage;
+	
+	@Value("${CVUpdated.message}")
+	String updatedMessage;
+	
+	@Value("${SuccessfullyQueued.message}")
+	String successMessage;
 
 	@Test
 	public void testSendReceive() { // Checks whether correctly pointing to MQ Server and therefore requires one
@@ -52,6 +72,7 @@ public class CvConsumerApplicationTests {
 		assertEquals(null, cv.getCreator());
 
 		Trainee bob = new Trainee();
+		cv.setCreator(bob);
 		assertEquals(bob, cv.getCreator());
 
 	}
@@ -73,8 +94,8 @@ public class CvConsumerApplicationTests {
 		Mockito.when(repo.findById(1l)).thenReturn(Optional.of(cv));
 		Mockito.when(repo.findById(11l)).thenReturn(Optional.empty());
 		Mockito.when(repo.findAll()).thenReturn(allCVs);
-		Mockito.when(producer.produce(cv)).thenReturn("${SuccessfullyQueued.message}");
-		Mockito.when(producer.produce(allCVs)).thenReturn("${SuccessfullyQueued.message}");
+		Mockito.when(producer.produce(cv)).thenReturn(successMessage);
+		Mockito.when(producer.produce(allCVs)).thenReturn(successMessage);
 
 		Request findRequest = new Request();
 		findRequest.setcvIDtoActUpon(1l);
@@ -114,20 +135,20 @@ public class CvConsumerApplicationTests {
 
 		Request malformedRequest = new Request();
 
-		assertEquals("${SuccessfullyQueued.message}", service.parse(findRequest));
-		assertEquals("${CVNotFound.message}", service.parse(badFindRequest));
+		assertEquals(queuedMessage, service.parse(findRequest));
+		assertEquals(notFoundMessage, service.parse(badFindRequest));
 
-		assertEquals("${CVDeleted.message}", service.parse(deleteRequest));
-		assertEquals("${CVNotFound.message}", service.parse(badDeleteRequest));
+		assertEquals(deletedMessage, service.parse(deleteRequest));
+		assertEquals(notFoundMessage, service.parse(badDeleteRequest));
 
-		assertEquals("${CVUpdated.message}", service.parse(updateRequest));
-		assertEquals("${CVNotFound.message}", service.parse(badUpdateRequest));
+		assertEquals(updatedMessage, service.parse(updateRequest));
+		assertEquals(notFoundMessage, service.parse(badUpdateRequest));
 
-		assertEquals("${CVAdded.message}", service.parse(addRequest));
-		assertEquals("${MalformedRequest.message}", service.parse(badAddRequest));
+		assertEquals(addMessage, service.parse(addRequest));
+		assertEquals(malformedMessage, service.parse(badAddRequest));
 
-		assertEquals("${SuccessfullyQueued.message}", service.parse(findAllRequest));
-		assertEquals("${MalformedRequest.message}", service.parse(malformedRequest));
+		assertEquals(queuedMessage, service.parse(findAllRequest));
+		assertEquals(malformedMessage, service.parse(malformedRequest));
 
 	}
 }
