@@ -21,4 +21,5 @@ public class CVProducer {
 		jmsTemplate.convertAndSend("${outgoingQueue}", cvs);
 		return "${successful.message}";
 	}
+
 }
