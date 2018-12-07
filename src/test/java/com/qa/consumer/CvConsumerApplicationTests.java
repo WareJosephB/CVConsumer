@@ -53,14 +53,10 @@ public class CvConsumerApplicationTests {
 		goodRequest.setcvIDtoActUpon(1l);
 		badRequest = new Request();
 		badRequest.setcvIDtoActUpon(11l);
-
-		bob = new Trainee();
+		
 		cv = new CV();
 		cv2 = new CV();
 		allCVs = new ArrayList<CV>();
-		bob.setFirstName("Bob");
-		cv.setCreator(bob);
-		cv2.setCreator(bob);
 		allCVs.add(cv);
 		allCVs.add(cv2);
 
