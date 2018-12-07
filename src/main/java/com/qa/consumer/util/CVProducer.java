@@ -1,7 +1,6 @@
 package com.qa.consumer.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
@@ -14,16 +13,13 @@ public class CVProducer {
 	private JmsTemplate jmsTemplate;
 
 	public String produce(CV cv) {
-		jmsTemplate.convertAndSend("${outgoingQueue}", cv);
-		return queuedMessage;
+		jmsTemplate.convertAndSend(Constants.OUTGOING_QUEUE_NAME, cv);
+		return Constants.CV_QUEUED_MESSAGE;
 	}
 
 	public String produce(Iterable<CV> cvs) {
-		jmsTemplate.convertAndSend("${outgoingQueue}", cvs);
-		return queuedMessage;
+		jmsTemplate.convertAndSend(Constants.OUTGOING_QUEUE_NAME, cvs);
+		return Constants.CV_QUEUED_MESSAGE;
 	}
-
-	@Value("${SuccessfullyQueued.message}")
-	private String queuedMessage;
 
 }

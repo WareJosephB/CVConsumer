@@ -13,7 +13,7 @@ public class RequestReceiver {
 	@Autowired
 	private CVService service;
 
-	@JmsListener(destination = "${incomingQueueName}", containerFactory = "myFactory")
+	@JmsListener(destination = Constants.INCOMING_QUEUE_NAME, containerFactory = "myFactory")
 	public void receiveMessage(Request request) {
 		service.parse(request);
 	}

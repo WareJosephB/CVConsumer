@@ -9,6 +9,7 @@ import com.qa.consumer.persistence.domain.Request;
 import com.qa.consumer.persistence.domain.Request.requestType;
 import com.qa.consumer.persistence.repository.CVRepository;
 import com.qa.consumer.util.CVProducer;
+import com.qa.consumer.util.Constants;
 
 @Service
 public class CVService {
@@ -18,18 +19,6 @@ public class CVService {
 
 	@Autowired
 	private CVProducer producer;
-
-	String queuedMessage = "File placed on queue succesfully";
-
-	String malformedMessage = "Queue request malformed";
-
-	String addMessage = "CV added succesfully";
-
-	String notFoundMessage = "CV not found";
-
-	String deletedMessage = "CV deleted succesfully";
-
-	String updatedMessage = "CV updated succesfully";
 
 	public void setRepo(CVRepository persist) {
 		this.consumerRepo = persist;
@@ -59,10 +48,10 @@ public class CVService {
 	private String delete(Request request) {
 		Optional<CV> cvToDelete = get(request.getcvIDtoActUpon());
 		if (!cvToDelete.isPresent()) {
-			return notFoundMessage;
+			return Constants.CV_NOT_FOUND_MESSAGE;
 		} else {
 			delete(request.getcvIDtoActUpon());
-			return deletedMessage;
+			return Constants.CV_DELETED_MESSAGE;
 		}
 	}
 
@@ -70,10 +59,10 @@ public class CVService {
 		Optional<CV> cvToUpdate = get(request.getcvIDtoActUpon());
 		CV updatedCV = request.getCv();
 		if (!cvToUpdate.isPresent()) {
-			return notFoundMessage;
+			return Constants.CV_NOT_FOUND_MESSAGE;
 		} else {
 			update(cvToUpdate.get(), updatedCV);
-			return updatedMessage;
+			return Constants.CV_UPDATED_MESSAGE;
 		}
 	}
 
@@ -89,16 +78,16 @@ public class CVService {
 		} else if (request.getType() == requestType.READALL) {
 			return send(getAll());
 		}
-		return malformedMessage;
+		return Constants.MALFORMED_REQUEST_MESSAGE;
 
 	}
 
 	private String add(Request request) {
 		if (request.getCv() == null) {
-			return malformedMessage;
+			return Constants.MALFORMED_REQUEST_MESSAGE;
 		} else {
 			add(request.getCv());
-			return addMessage;
+			return Constants.CV_ADDED_MESSAGE;
 		}
 	}
 
@@ -109,7 +98,7 @@ public class CVService {
 
 	public String send(Optional<CV> optional) {
 		if (!optional.isPresent()) {
-			return notFoundMessage;
+			return Constants.CV_NOT_FOUND_MESSAGE;
 		} else {
 			return producer.produce(optional.get());
 

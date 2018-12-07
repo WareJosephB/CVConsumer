@@ -23,6 +23,7 @@ import com.qa.consumer.persistence.domain.Request.requestType;
 import com.qa.consumer.persistence.repository.CVRepository;
 import com.qa.consumer.service.CVService;
 import com.qa.consumer.util.CVProducer;
+import com.qa.consumer.util.Constants;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -35,24 +36,17 @@ public class CvConsumerApplicationTests {
 	private CVService service;
 
 	@Mock
-	private static CVRepository repo;
+	private CVRepository repo;
 
+	@Mock
+	private CVProducer producer;
+
+	private Request goodRequest;
+	private Request badRequest;
 	private CV cv;
 	private Trainee bob;
 	private CV cv2;
 	private ArrayList<CV> allCVs;
-
-	@Mock
-	private static CVProducer producer;
-
-	private String queuedMessage = "File placed on queue succesfully";
-	private String malformedMessage = "Queue request malformed";
-	private String addMessage = "CV added succesfully";
-	private String notFoundMessage = "CV not found";
-	private String deletedMessage = "CV deleted succesfully";
-	private String updatedMessage = "CV updated succesfully";
-	private Request goodRequest;
-	private Request badRequest;
 
 	@Before
 	public void setUp() {
@@ -60,16 +54,17 @@ public class CvConsumerApplicationTests {
 		goodRequest.setcvIDtoActUpon(1l);
 		badRequest = new Request();
 		badRequest.setcvIDtoActUpon(11l);
+
+		bob = new Trainee();
+		cv = new CV();
+		cv2 = new CV();
+		allCVs = new ArrayList<CV>();
 		bob.setFirstName("Bob");
 		cv.setCreator(bob);
 		cv2.setCreator(bob);
 		allCVs.add(cv);
 		allCVs.add(cv2);
-		Mockito.when(repo.findById(1l)).thenReturn(Optional.of(cv));
-		Mockito.when(repo.findById(11l)).thenReturn(Optional.empty());
-		Mockito.when(repo.findAll()).thenReturn(allCVs);
-		Mockito.when(producer.produce(cv)).thenReturn(queuedMessage);
-		Mockito.when(producer.produce(allCVs)).thenReturn(queuedMessage);
+
 	}
 
 	@Test
@@ -90,31 +85,42 @@ public class CvConsumerApplicationTests {
 	}
 
 	@Test
-	public void testFindParse() { // Checks whether requests are parsed correctl
+	public void testFindParse() {
+		Mockito.when(repo.findById(1l)).thenReturn(Optional.of(cv));
+		Mockito.when(repo.findById(11l)).thenReturn(Optional.empty());
+		Mockito.when(producer.produce(cv)).thenReturn(Constants.CV_QUEUED_MESSAGE);
+
 		goodRequest.setType(requestType.READ);
 		badRequest.setType(requestType.READ);
 
-		assertEquals(queuedMessage, service.parse(goodRequest));
-		assertEquals(notFoundMessage, service.parse(badRequest));
+		assertEquals(Constants.CV_QUEUED_MESSAGE, service.parse(goodRequest));
+		assertEquals(Constants.CV_NOT_FOUND_MESSAGE, service.parse(badRequest));
 
 	}
 
 	@Test
 	public void testDeleteParse() {
+		Mockito.when(repo.findById(1l)).thenReturn(Optional.of(cv));
+		Mockito.when(repo.findById(11l)).thenReturn(Optional.empty());
+
 		goodRequest.setType(requestType.DELETE);
 		badRequest.setType(requestType.DELETE);
 
-		assertEquals(deletedMessage, service.parse(goodRequest));
-		assertEquals(notFoundMessage, service.parse(badRequest));
+		assertEquals(Constants.CV_DELETED_MESSAGE, service.parse(goodRequest));
+		assertEquals(Constants.CV_NOT_FOUND_MESSAGE, service.parse(badRequest));
 	}
 
 	@Test
 	public void testUpdateParse() {
+		Mockito.when(repo.findById(1l)).thenReturn(Optional.of(cv));
+		Mockito.when(repo.findById(11l)).thenReturn(Optional.empty());
+
 		goodRequest.setType(requestType.UPDATE);
+		goodRequest.setCv(cv2);
 		badRequest.setType(requestType.UPDATE);
 
-		assertEquals(updatedMessage, service.parse(goodRequest));
-		assertEquals(notFoundMessage, service.parse(badRequest));
+		assertEquals(Constants.CV_UPDATED_MESSAGE, service.parse(goodRequest));
+		assertEquals(Constants.CV_NOT_FOUND_MESSAGE, service.parse(badRequest));
 	}
 
 	@Test
@@ -123,17 +129,20 @@ public class CvConsumerApplicationTests {
 		goodRequest.setCv(cv2);
 		badRequest.setType(requestType.CREATE);
 
-		assertEquals(addMessage, service.parse(goodRequest));
-		assertEquals(malformedMessage, service.parse(badRequest));
+		assertEquals(Constants.CV_ADDED_MESSAGE, service.parse(goodRequest));
+		assertEquals(Constants.MALFORMED_REQUEST_MESSAGE, service.parse(badRequest));
 
 	}
 
 	@Test
-	public void testOtherParse() {
+	public void testFindAllAndMalformedParse() {
+		Mockito.when(repo.findAll()).thenReturn(allCVs);
+		Mockito.when(producer.produce(allCVs)).thenReturn(Constants.CV_QUEUED_MESSAGE);
+
 		goodRequest.setType(requestType.READALL);
 
-		assertEquals(queuedMessage, service.parse(goodRequest));
-		assertEquals(malformedMessage, service.parse(badRequest));
+		assertEquals(Constants.CV_QUEUED_MESSAGE, service.parse(goodRequest));
+		assertEquals(Constants.MALFORMED_REQUEST_MESSAGE, service.parse(badRequest));
 	}
 
 }
