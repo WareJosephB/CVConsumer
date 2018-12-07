@@ -1,22 +1,21 @@
 package com.qa.consumer.persistence.domain;
 
-import java.io.File;
-
 import org.springframework.data.annotation.Id;
+import org.springframework.web.multipart.MultipartFile;
 
 public class CV {
 
 	@Id
 	private long _id;
-	private File cvFile;
+	private MultipartFile cvFile;
 	private Trainee creator;
 
-	public File getCV() {
+	public MultipartFile getCV() {
 		return cvFile;
 	}
 
-	public void setCV(File cV) {
-		cvFile = cV;
+	public void setCV(MultipartFile cv) {
+		cvFile = cv;
 	}
 
 	public Trainee getCreator() {

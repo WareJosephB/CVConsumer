@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -81,6 +80,23 @@ public class CvConsumerApplicationTests {
 		Trainee bob = new Trainee();
 		cv.setCreator(bob);
 		assertEquals(bob, cv.getCreator());
+
+	}
+
+	@Test
+	public void traineeTests() {
+		bob = new Trainee();
+		assertEquals(null, bob.getFirstName());
+		assertEquals(null, bob.getEmail());
+		assertEquals(null, bob.getLastName());
+
+		bob.setEmail("a@b.com");
+		bob.setFirstName("Bob");
+		bob.setLastName("Bobbington");
+
+		assertEquals("a@b.com", bob.getEmail());
+		assertEquals("Bob", bob.getFirstName());
+		assertEquals("Bobbington", bob.getLastName());
 
 	}
 
